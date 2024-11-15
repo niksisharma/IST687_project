@@ -1,0 +1,26 @@
+---
+title: "Exploratory Data Analysis"
+author: "Nikita Sharma"
+date: "2024-11-15"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# libraries
+library(arrow)
+library(tidyverse)
+```
+
+```{r}
+# static house data
+data = read_parquet("static_house_info.parquet")
+```
+
+```{r}
+# filtering only low income households
+low_income <- data %>% filter(in.income_recs_2020 == "<20000")
+```
