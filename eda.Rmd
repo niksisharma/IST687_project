@@ -20,9 +20,9 @@ library(tidyverse)
 static_house_data <- read_parquet("https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/static_house_info.parquet")
 ```
 
-```{r}
-# Splitting data among team
+Splitting data among team
 
+```{r}
 # Batu
 # filtering only houses built in the 1960s and 1970s
 houses_60s_70s = static_house_data %>% filter(in.vintage %in% c('1960s', '1970s'))
@@ -37,4 +37,21 @@ glimpse(houses_80s_90s)
 # filtering only houses built in the 2000s and 2010s
 houses_00s_10s = static_house_data %>% filter(in.vintage %in% c('2000s', '2010s'))
 glimpse(houses_00s_10s)
+```
+
+Combining with energy data for 80s-90s
+
+```{r}
+# Empty variable for storing combined energy data
+energy_combined = NULL
+
+# Iterate over each building ID 
+for (building_id in houses_80s_90s$bldg_id) {
+  # Construct URL to fetch energy data for each building
+  energy_data_url = paste0("https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/2023-houseData/", building_id, ".parquet")
+  building_energy = read_parquet(energy_data_url)
+  
+  energy_combined = if (is.null(energy_combined)) 
+building_energy else rbind(energy_combined, building_energy)
+}
 ```
