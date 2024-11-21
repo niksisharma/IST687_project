@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # libraries
 library(arrow)
 library(tidyverse)
+library(data.table)
 ```
 
 ```{r}
@@ -50,8 +51,46 @@ for (building_id in houses_80s_90s$bldg_id) {
   # Construct URL to fetch energy data for each building
   energy_data_url = paste0("https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/2023-houseData/", building_id, ".parquet")
   building_energy = read_parquet(energy_data_url)
+  building_energy$building_id = building_id
+
   
-  energy_combined = if (is.null(energy_combined)) 
-building_energy else rbind(energy_combined, building_energy)
+  energy_combined = if (is.null(energy_combined)) building_energy else rbind(energy_combined, building_energy)
+  break
 }
+
+energy_house_data = left_join(energy_combined, houses_80s_90s, by = c('building_id' = 'bldg_id'))
+
+energy_house_data$time = as.POSIXct(energy_house_data$time, "%Y-%m-%d %H:%M:%S", tz = "UTC")
+
+```
+
+Combining with weather data for 80s to 90s
+
+```{r}
+unique_counties = unique(energy_house_data$in.county)
+# Empty variable for storing combined weather data
+weather_combined = NULL
+
+# Iterate over counties
+for (county_id in unique_counties) {
+  # Construct URL
+  weather_data_url = paste0("https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/weather/2023-weather-data/", county_id, ".csv")
+  county_weather = read_csv(weather_data_url)
+  county_weather$in.county = county_id
+
+  weather_combined = if (is.null(weather_combined)) county_weather else rbind(weather_combined, county_weather)
+  break
+}
+
+# Date time formatting
+weather_combined$date_time = as.POSIXct(weather_combined$date_time, "%Y-%m-%d %H:%M:%S", tz = "UTC")
+
+# Convert data frames to data tables
+setDT(energy_house_data)
+setDT(weather_combined)
+
+# Merge energy house data with weather data
+final_data = merge(energy_house_data, weather_combined, 
+                   by.x = c("in.county", "time"), 
+                   by.y = c("in.county", "date_time"), all.x = TRUE)
 ```
