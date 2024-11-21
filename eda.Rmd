@@ -17,10 +17,11 @@ library(tidyverse)
 
 ```{r}
 # static house data
-data = read_parquet("static_house_info.parquet")
+static_house_data <- read_parquet("https://intro-datascience.s3.us-east-2.amazonaws.com/SC-data/static_house_info.parquet")
 ```
 
 ```{r}
-# filtering only low income households
-low_income <- data %>% filter(in.income_recs_2020 == "<20000")
+# filtering only houses built after 1960
+year_filter = c('1960s', '1970s', '1980s', '1990s', '2000s', '2010s')
+new_houses = static_house_data %>% filter(in.vintage %in% year_filter)
 ```
