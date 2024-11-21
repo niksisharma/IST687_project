@@ -21,7 +21,20 @@ static_house_data <- read_parquet("https://intro-datascience.s3.us-east-2.amazon
 ```
 
 ```{r}
-# filtering only houses built after 1960
-year_filter = c('1960s', '1970s', '1980s', '1990s', '2000s', '2010s')
-new_houses = static_house_data %>% filter(in.vintage %in% year_filter)
+# Splitting data among team
+
+# Batu
+# filtering only houses built in the 1960s and 1970s
+houses_60s_70s = static_house_data %>% filter(in.vintage %in% c('1960s', '1970s'))
+glimpse(houses_80s_90s)
+
+# Nikita
+# filtering only houses built in the 1980s and 1990s
+houses_80s_90s = static_house_data %>% filter(in.vintage %in% c('1980s', '1990s'))
+glimpse(houses_80s_90s)
+
+# Alice
+# filtering only houses built in the 2000s and 2010s
+houses_00s_10s = static_house_data %>% filter(in.vintage %in% c('2000s', '2010s'))
+glimpse(houses_80s_90s)
 ```
